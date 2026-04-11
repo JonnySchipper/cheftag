@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticketer - Label Printing System</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-ticket-alt"></i> Ticketer</h1>
+            <p class="subtitle">Label Printing System</p>
+        </header>
+
+        <div class="main-content">
+            <div class="card">
+                <h2><i class="fas fa-edit"></i> Create New Label</h2>
+                
+                <form id="labelForm">
+                    <div class="form-group">
+                        <label for="labelType"><i class="fas fa-tag"></i> Label Type</label>
+                        <select id="labelType" required>
+                            <option value="shipping">Shipping Label</option>
+                            <option value="barcode">Barcode Label</option>
+                            <option value="ticket">Event Ticket</option>
+                            <option value="address">Address Label</option>
+                            <option value="custom">Custom Label</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="title"><i class="fas fa-heading"></i> Title</label>
+                        <input type="text" id="title" placeholder="Enter label title" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="content"><i class="fas fa-align-left"></i> Content</label>
+                        <textarea id="content" rows="4" placeholder="Enter label content..." required></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quantity"><i class="fas fa-copy"></i> Quantity</label>
+                            <input type="number" id="quantity" value="1" min="1" max="100">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="priority"><i class="fas fa-exclamation-circle"></i> Priority</label>
+                            <select id="priority">
+                                <option value="low">Low</option>
+                                <option value="normal" selected>Normal</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-cog"></i> Options</label>
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" id="addBarcode" checked>
+                                Add barcode
+                            </label>
+                            <label>
+                                <input type="checkbox" id="addTimestamp">
+                                Add timestamp
+                            </label>
+                            <label>
+                                <input type="checkbox" id="cutAfterPrint" checked>
+                                Cut after print
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-print"></i> Print Label
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="previewBtn">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                        <button type="button" class="btn btn-outline" id="clearBtn">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-history"></i> Print Queue</h2>
+                <div id="queueStatus" class="status">
+                    <i class="fas fa-sync fa-spin"></i> Connecting to print server...
+                </div>
+                <div id="printQueue" class="queue">
+                    <!-- Queue items will be added here dynamically -->
+                    <div class="queue-empty">
+                        <i class="fas fa-inbox"></i>
+                        <p>No print jobs in queue</p>
+                    </div>
+                </div>
+                <div class="queue-controls">
+                    <button class="btn btn-small" id="refreshQueue">
+                        <i class="fas fa-redo"></i> Refresh
+                    </button>
+                    <button class="btn btn-small btn-danger" id="clearQueue" disabled>
+                        <i class="fas fa-trash"></i> Clear All
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-info-circle"></i> System Status</h2>
+                <div class="status-grid">
+                    <div class="status-item">
+                        <div class="status-label">Print Server</div>
+                        <div class="status-value" id="serverStatus">
+                            <span class="status-badge status-offline">Offline</span>
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">Printer</div>
+                        <div class="status-value" id="printerStatus">
+                            <span class="status-badge status-offline">Not Connected</span>
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">Queue</div>
+                        <div class="status-value" id="queueCount">0 jobs</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">Last Print</div>
+                        <div class="status-value" id="lastPrint">Never</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Ticketer v1.0 | Print Server: <span id="serverUrl">http://localhost:5000</span></p>
+            <p class="footer-links">
+                <a href="#" id="settingsBtn"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" id="helpBtn"><i class="fas fa-question-circle"></i> Help</a>
+                <a href="#" id="aboutBtn"><i class="fas fa-info-circle"></i> About</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-eye"></i> Label Preview</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="label-preview">
+                    <div class="label-paper">
+                        <div class="label-content">
+                            <h4 id="previewTitle">Sample Label Title</h4>
+                            <p id="previewContent">Sample label content will appear here...</p>
+                            <div class="label-barcode" id="previewBarcode">
+                                <div class="barcode-placeholder">
+                                    <i class="fas fa-barcode"></i> Barcode will be generated here
+                                </div>
+                            </div>
+                            <div class="label-footer">
+                                <small id="previewTimestamp">Timestamp will appear here</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="printFromPreview">
+                    <i class="fas fa-print"></i> Print This Label
+                </button>
+                <button class="btn btn-outline modal-close">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

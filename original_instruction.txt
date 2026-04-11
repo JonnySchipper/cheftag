@@ -1,0 +1,159 @@
+✅ Here is the updated, polished, and Cursor-ready version of your original prompt.
+Copy everything below (from the **PROJECT: Cheftag Solutions** line down to the end) and paste it directly into Cursor. It now includes all your answers, my best-practice decisions where you said “whatever you think is best,” complete TypeScript data models (created for you since none were provided), printing logic for the Raspberry Pi, i18n structure, mock-data strategy, and everything else needed to build the full app in one go.
+
+PROJECT: Cheftag Solutions
+App Name: Cheftag Solutions
+Purpose: Modern food-label & expiration management system for restaurants/pizzerias
+Core Goal: Print labels, track expiration, reduce waste, ensure compliance, and give real-time team visibility
+Target Users: Restaurant owners, managers, kitchen staff (example: Renato Veras / De Veras Restaurante e Pizzaria)
+Languages: English (primary) + Portuguese (pt-BR).
+Start with English only. Use a simple Zustand + JSON dictionary translation system (translation keys) so Portuguese can be added later with zero refactoring. Mark every string with a t() helper or comment // i18n: pt-BR.
+Color Scheme:
+
+Primary: #7b2182 (purple)
+Accent: #FAB400 (gold)
+Background: hsl(240 45% 98%) light / dark mode equivalent
+
+Design Style: Clean, modern Tailwind + shadcn/ui with smooth animations and emoji-enhanced KPIs. Full dark mode. Responsive (especially tablet-friendly for kitchen use). Bottom navigation on mobile. Bottom drawers on mobile, side sheets on desktop.
+Tech Stack (Cursor-Ready):
+
+Next.js 15 (App Router) + React 19
+Tailwind CSS + shadcn/ui + lucide-react
+Charts: Recharts (exact pie & bar charts from original)
+Tables: TanStack Table v8 (sorting, filtering, pagination, bulk select)
+Forms: React Hook Form + Zod
+State: Zustand (theme, global filters, selected items, current user)
+Icons: Lucide + custom SVG logo
+Notifications: Sonner (toasts)
+Data: 100% mock JSON in /lib/mock-data.ts + Zustand. Data access layer must be cleanly abstracted so it can be swapped later for Supabase/Prisma with minimal changes.
+No real auth for v1 → fake “logged-in-as” toggle using mock employees.
+
+No existing assets:
+
+No GitHub repo, Figma, or previous code. Build from scratch.
+No logo provided → create a clean SVG logo with text “Cheftag” + simple chef-hat icon (purple/gold).
+No screenshots provided → match the exact layout described in the original spec as closely as possible using the KPI cards, label cards, charts, and device cards described below.
+
+Data Models (complete TypeScript interfaces – create these in /lib/types.ts and populate realistic mock data in /lib/mock-data.ts):
+TypeScriptexport interface PreservationMode {
+  id: string;
+  name: string;
+  icon: string; // lucide icon name
+  durationHours: number;
+}
+
+export interface Group {
+  id: string;
+  name: string;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  groupId: string;
+  sif: string;
+  supplier: string;
+  preservationModes: { modeId: string; durationHours: number }[];
+}
+
+export interface Employee {
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  phone: string;
+  role: 'simple' | 'administrator';
+}
+
+export interface Device {
+  id: string;
+  name: string;
+  printers: string[];
+  lastPrint: string | null;
+  lastSeen: string;
+  online: boolean;
+}
+
+export interface Label {
+  id: string;
+  productId: string;
+  productName: string;
+  quantity: number;
+  createdAt: string;
+  preservationModeId: string;
+  preservationDurationHours: number;
+  storageLocation: string;
+  responsibleId: string;
+  responsibleName: string;
+  // expiration is calculated: createdAt + preservationDurationHours
+}
+
+export interface ReportEntry extends Label {
+  printed: boolean;
+  discarded: boolean;
+  discardedAt?: string;
+}
+Label Status Logic:
+
+Calculate expirationDate = createdAt + preservationDurationHours
+“Valid” = > 48 hours left
+“Expires soon” = ≤ 48 hours left but not expired
+“Expired” = past expiration date
+Status badges must be colored accordingly.
+
+Mock Data Strategy:
+
+Seed fresh mock data on every dev server start (/lib/mock-data.ts).
+Persist changes during the session in localStorage (Zustand + persist middleware) so bulk actions, prints, discards feel real.
+
+Global Layout & Shared Components
+
+Sticky header (logo, global search, dark mode toggle, logged-in user)
+Mobile bottom nav: Dashboard / Labels / Print / Reports / Settings
+Floating WhatsApp button (bottom-right)
+KPI cards with skeletons
+Label grid cards with quick-print button
+TanStack data tables
+Recharts pie & bar charts
+Bottom drawer modals
+Status badges + skeleton loaders everywhere
+
+Pages & Features (build ALL of them – full scope requested):
+
+Dashboard – Sub-header + New label button, filter tabs, 6 KPI cards (with Access/Discard), 3-column charts section (employee pie, storage pie, preservation pie, period bar chart with Day/Month toggle + Printed vs Discarded), recent activity sidebar.
+Labels – Advanced filters (remembered via localStorage), global search, infinite-scroll grid of label cards, quick-print on every card, checkboxes + bulk actions bar (Print selected, Discard selected, Export CSV).
+Products – TanStack table + New product button → improved bottom/side drawer.
+Employees – TanStack table.
+Groups – TanStack table.
+Devices – Card layout with “Print test label” button.
+Reports – Full TanStack table of all labels + Export CSV/PDF buttons + summary stats.
+Preservation Modes (Settings) – Table + add/edit.
+Printing – Simple printer selection + current queue (mock for now).
+Settings – Navigation hub to all management pages.
+
+Printing Implementation:
+
+Quick-print and Print buttons must generate a label image/PDF and simulate sending it to the Raspberry Pi.
+Show “sent to printer” toast immediately.
+Make the print handler easily replaceable later with a real API call or WebSocket to the Pi (add a comment // TODO: real Raspberry Pi endpoint).
+Labels can be different sizes → make the print component accept a configurable size.
+
+Forms & UX Enhancements
+
+New Product drawer with multi-select groups + multiple preservation modes (days/hours/minutes).
+Real-time Zod validation.
+Skeleton loaders + smooth animations.
+Bulk actions update mock data instantly + Sonner toasts.
+Keyboard shortcuts: N = New label, / = focus search.
+Global search works across all pages.
+Smart filters remembered via localStorage.
+
+Additional Requirements
+
+Export reports to CSV + PDF.
+Toast notifications for every major action.
+Fully responsive + perfect tablet experience.
+Clean, well-commented, production-ready code with clear folder structure.
+
+Task for Cursor:
+Please create the complete project from scratch with the exact folder structure, all pages, components, mock data, Zustand stores, types, and printing simulation ready to run with npm run dev.
