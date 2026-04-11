@@ -21,14 +21,14 @@ export function KpiCard({
   onDiscard,
 }: KpiCardProps) {
   return (
-    <div className="flex flex-col justify-between gap-2.5 h-full p-3 border rounded-xl border-border bg-card">
-      <div className="flex flex-row md:flex-col max-md:items-center max-md:justify-between gap-2">
-        <p className="text-sm font-medium text-muted-foreground">
+    <div className="flex h-full min-h-[120px] flex-col justify-between gap-3 rounded-2xl border-2 border-border bg-card p-4">
+      <div className="flex flex-row gap-2 md:flex-col max-md:items-center max-md:justify-between">
+        <p className="text-base font-bold leading-tight text-muted-foreground">
           {emoji && `${emoji} `}
           {title}
         </p>
         <p
-          className={`text-xl md:text-5xl font-bold ${
+          className={`text-3xl font-black tabular-nums md:text-5xl ${
             destructive ? "text-destructive" : "text-foreground"
           }`}
         >
@@ -36,27 +36,27 @@ export function KpiCard({
         </p>
       </div>
       {(onAccess || onDiscard) && (
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {onAccess && (
             <button
+              type="button"
               onClick={onAccess}
-              className="flex items-center gap-2 flex-1 py-1 px-2 rounded-full transition-all duration-300 group justify-between bg-muted hover:bg-primary/20"
+              className="group flex min-h-[44px] min-w-[44px] flex-1 items-center justify-between gap-2 rounded-xl bg-muted px-3 py-2 font-semibold transition-colors hover:bg-primary/20"
             >
-              <p className="text-xs font-semibold text-muted-foreground group-hover:text-primary">
+              <span className="text-sm text-muted-foreground group-hover:text-primary">
                 {t("dashboard.access")}
-              </p>
-              <ArrowRightToLine className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
+              </span>
+              <ArrowRightToLine className="h-5 w-5 shrink-0 text-muted-foreground group-hover:text-primary" />
             </button>
           )}
           {onDiscard && (
             <button
+              type="button"
               onClick={onDiscard}
-              className="flex items-center gap-2 flex-1 py-1 px-2 rounded-full transition-all duration-300 group justify-between bg-destructive/20 hover:bg-destructive/10"
+              className="flex min-h-[44px] min-w-[44px] flex-1 items-center justify-between gap-2 rounded-xl bg-destructive/20 px-3 py-2 font-semibold text-destructive transition-colors hover:bg-destructive/30"
             >
-              <p className="text-xs font-semibold text-destructive">
-                {t("dashboard.discard")}
-              </p>
-              <Trash2 className="w-4 h-4 text-destructive" />
+              <span className="text-sm">{t("dashboard.discard")}</span>
+              <Trash2 className="h-5 w-5 shrink-0" />
             </button>
           )}
         </div>

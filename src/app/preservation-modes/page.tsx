@@ -184,7 +184,7 @@ export default function PreservationModesPage() {
         }
       />
 
-      <div className="mx-auto max-w-7xl px-4 lg:px-6 py-4 animate-fade-in">
+      <div className="mx-auto max-w-[1600px] px-3 py-4 sm:px-4 lg:px-6 animate-fade-in">
         <div className="bg-card border rounded-xl overflow-hidden">
           <Table>
             <TableHeader>

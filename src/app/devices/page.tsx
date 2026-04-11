@@ -106,7 +106,7 @@ export default function DevicesPage() {
         }
       />
 
-      <div className="mx-auto max-w-7xl px-4 lg:px-6 py-4 animate-fade-in">
+      <div className="mx-auto max-w-[1600px] px-3 py-4 sm:px-4 lg:px-6 animate-fade-in">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {devices.map((device) => (
             <Card key={device.id} className="bg-card">

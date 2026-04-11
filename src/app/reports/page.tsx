@@ -185,7 +185,7 @@ export default function ReportsPage() {
     <div>
       <PageHeader title={t("reports.title")} />
 
-      <div className="mx-auto max-w-7xl px-4 lg:px-6 py-4 space-y-4 animate-fade-in">
+      <div className="mx-auto max-w-[1600px] px-3 py-4 sm:px-4 lg:px-6 space-y-4 animate-fade-in">
         {/* Summary stats */}
         <div className="grid grid-cols-3 gap-4">
           <div className="p-4 bg-card border rounded-xl">

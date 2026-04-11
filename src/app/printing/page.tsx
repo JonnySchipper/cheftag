@@ -27,7 +27,7 @@ export default function PrintingPage() {
 
   const handlePrintAll = async () => {
     if (!selectedDevice) {
-      toast.error("Please select a printer first");
+      toast.error(t("printing.selectPrinterFirst"));
       return;
     }
     for (const label of printQueue) {
@@ -42,18 +42,17 @@ export default function PrintingPage() {
     <div>
       <PageHeader title={t("printing.title")} />
 
-      <div className="mx-auto max-w-7xl px-4 lg:px-6 py-4 space-y-6 animate-fade-in">
-        {/* Printer selection */}
-        <Card className="bg-card">
+      <div className="mx-auto max-w-[1600px] space-y-6 px-3 py-4 animate-fade-in sm:px-4 lg:px-6">
+        <Card className="border-2 bg-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Printer className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-3 text-xl font-bold">
+              <Printer className="h-7 w-7 text-primary" />
               {t("printing.selectPrinter")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <Select value={selectedDevice} onValueChange={(v) => setSelectedDevice(v ?? "")}>
-              <SelectTrigger className="max-w-md">
+              <SelectTrigger className="h-14 min-h-[56px] max-w-xl rounded-xl text-base font-semibold">
                 <SelectValue placeholder="Select a printer..." />
               </SelectTrigger>
               <SelectContent>
@@ -66,35 +65,38 @@ export default function PrintingPage() {
             </Select>
 
             {onlineDevices.length === 0 && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-base font-medium text-muted-foreground">
                 No online printers available. Check your devices.
               </p>
             )}
           </CardContent>
         </Card>
 
-        {/* Print Queue */}
-        <Card className="bg-card">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="w-5 h-5" />
+        <Card className="border-2 bg-card">
+          <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <CardTitle className="flex items-center gap-3 text-xl font-bold">
+              <Clock className="h-7 w-7 text-primary" />
               {t("printing.queue")} ({printQueue.length})
             </CardTitle>
-            <div className="flex gap-2">
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
               {printQueue.length > 0 && (
                 <>
                   <Button
                     variant="outline"
-                    size="sm"
-                    className="gap-1 text-destructive"
+                    size="lg"
+                    className="h-14 min-h-[56px] gap-2 font-bold text-destructive"
                     onClick={clearPrintQueue}
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    Clear queue
+                    <Trash2 className="h-5 w-5" />
+                    {t("printing.clearQueue")}
                   </Button>
-                  <Button size="sm" className="gap-1" onClick={handlePrintAll}>
-                    <Printer className="w-3.5 h-3.5" />
-                    Print all ({printQueue.length})
+                  <Button
+                    size="lg"
+                    className="h-14 min-h-[56px] gap-2 text-lg font-bold shadow-lg"
+                    onClick={handlePrintAll}
+                  >
+                    <Printer className="h-7 w-7" />
+                    {t("printing.printNow")} ({printQueue.length})
                   </Button>
                 </>
               )}
@@ -102,24 +104,24 @@ export default function PrintingPage() {
           </CardHeader>
           <CardContent>
             {printQueue.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Printer className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                <p>{t("printing.noQueue")}</p>
-                <p className="text-sm mt-1">
-                  Add labels from the Labels page using the quick print button
+              <div className="py-14 text-center text-muted-foreground">
+                <Printer className="mx-auto mb-4 h-16 w-16 opacity-30" />
+                <p className="text-lg font-semibold">{t("printing.noQueue")}</p>
+                <p className="mt-2 max-w-md mx-auto text-base">
+                  {t("printing.addFromLabels")}
                 </p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {printQueue.map((label) => (
                   <div
                     key={label.id}
-                    className="flex items-center gap-3 p-3 border rounded-lg"
+                    className="flex min-h-[56px] items-center gap-4 rounded-xl border-2 border-border p-4"
                   >
-                    <Package className="w-4 h-4 text-muted-foreground" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{label.productName}</p>
-                      <p className="text-xs text-muted-foreground">
+                    <Package className="h-6 w-6 shrink-0 text-muted-foreground" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-lg font-bold leading-tight">{label.productName}</p>
+                      <p className="text-base font-medium text-muted-foreground">
                         Qty: {label.quantity} · Expires:{" "}
                         {format(getExpirationDate(label), "MMM dd, HH:mm")}
                       </p>

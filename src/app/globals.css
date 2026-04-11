@@ -145,3 +145,9 @@
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
+
+/* Safe area for notched phones + bottom nav / FAB */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+

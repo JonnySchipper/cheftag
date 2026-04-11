@@ -141,7 +141,7 @@ export default function GroupsPage() {
         }
       />
 
-      <div className="mx-auto max-w-7xl px-4 lg:px-6 py-4 space-y-4 animate-fade-in">
+      <div className="mx-auto max-w-[1600px] px-3 py-4 sm:px-4 lg:px-6 space-y-4 animate-fade-in">
         <div className="relative max-w-sm">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder={t("common.search")} className="pl-8 h-9" value={search} onChange={(e) => setSearch(e.target.value)} />

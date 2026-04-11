@@ -23,7 +23,6 @@ export default function DashboardPage() {
   const [newLabelOpen, setNewLabelOpen] = useState(false);
 
   const stats = useMemo(() => {
-    const now = new Date();
     let active = 0;
     let expired = 0;
     let expiringToday = 0;
@@ -156,14 +155,14 @@ export default function DashboardPage() {
         action={
           <Sheet open={newLabelOpen} onOpenChange={setNewLabelOpen}>
             <SheetTrigger
-              render={<Button size="sm" className="gap-1" />}
+              render={<Button size="lg" className="h-12 gap-2 px-5 text-base font-bold" />}
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="h-5 w-5" />
               {t("dashboard.newLabel")}
             </SheetTrigger>
-            <SheetContent>
+            <SheetContent side="right" className="w-full max-w-md sm:max-w-lg">
               <SheetHeader>
-                <SheetTitle>{t("dashboard.newLabel")}</SheetTitle>
+                <SheetTitle className="text-xl font-bold">{t("dashboard.newLabel")}</SheetTitle>
               </SheetHeader>
               <div className="mt-4">
                 <NewLabelForm onClose={() => setNewLabelOpen(false)} />
@@ -173,10 +172,10 @@ export default function DashboardPage() {
         }
       />
 
-      <div className="mx-auto max-w-7xl px-4 lg:px-6 py-4">
-        <div className="space-y-6 animate-fade-in">
+      <div className="mx-auto max-w-[1600px] px-3 py-4 sm:px-4 lg:px-6">
+        <div className="space-y-8 animate-fade-in">
           {/* KPI Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             <KpiCard
               title={t("dashboard.totalLabels")}
               value={stats.total}
@@ -242,19 +241,19 @@ export default function DashboardPage() {
           />
 
           {/* Recent Activity */}
-          <div className="bg-card border rounded-xl p-4">
-            <h3 className="font-semibold mb-4">{t("dashboard.recentActivity")}</h3>
+          <div className="rounded-2xl border-2 border-border bg-card p-4 sm:p-5">
+            <h3 className="mb-4 text-lg font-bold">{t("dashboard.recentActivity")}</h3>
             <div className="space-y-3">
               {recentLabels.map((label) => (
                 <div
                   key={label.id}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors"
+                  className="flex min-h-[52px] items-center gap-3 rounded-xl p-3 transition-colors hover:bg-muted"
                 >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-base font-semibold">
                       {label.productName}
                     </p>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <User className="w-3 h-3" />
                         {label.responsibleName}

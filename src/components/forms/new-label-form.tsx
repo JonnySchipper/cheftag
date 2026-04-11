@@ -31,8 +31,15 @@ interface NewLabelFormProps {
 }
 
 export function NewLabelForm({ onClose }: NewLabelFormProps) {
-  const { products, preservationModes, currentUserId, employees, addLabel } =
-    useAppStore();
+  const {
+    products,
+    preservationModes,
+    currentUserId,
+    employees,
+    addLabel,
+    addToPrintQueue,
+    setHighlightPrintAfterCreate,
+  } = useAppStore();
 
   const currentUser = employees.find((e) => e.id === currentUserId)!;
 
@@ -86,6 +93,8 @@ export function NewLabelForm({ onClose }: NewLabelFormProps) {
     };
 
     addLabel(newLabel);
+    addToPrintQueue(newLabel);
+    setHighlightPrintAfterCreate(true);
     toast.success(t("toast.labelCreated"));
     onClose();
   };

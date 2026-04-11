@@ -6,7 +6,15 @@ Modern food-label & expiration management system for restaurants.
 
 ### Project overview
 
-Single Next.js 15 (App Router) application with 10 pages: Dashboard, Labels, Products, Employees, Groups, Devices, Reports, Preservation Modes, Printing, and Settings. Uses React 19, Tailwind CSS, and shadcn/ui v4 (base-ui backed, not Radix). All data is mock (Zustand + localStorage persistence).
+Single Next.js 16 (App Router) application with routes: Dashboard, Labels, Printing, Reports, Products, Employees, Groups, Devices, Preservation Modes, Settings. Uses React 19, Tailwind CSS, and shadcn/ui v4 (base-ui backed, not Radix). All data is mock (Zustand + localStorage persistence).
+
+### Shell / navigation
+
+- **Mobile & tablet (`< xl`)**: Bottom nav with four items — Home (`/dashboard`), Labels (`/labels`), Print (`/printing`), More (bottom sheet linking to Reports + all admin routes). Header: logo, prominent global search, theme toggle, user menu.
+- **Desktop (`xl+`)**: Left sidebar with the same four sections; `More` opens the same sheet as mobile.
+- **Global PRINT FAB** (`BigPrintFab`): Always visible; opens `PrintQuickSheet` (queue + “Print all now”). New labels are auto-added to the print queue and `highlightPrintAfterCreate` pulses the FAB until dismissed.
+- **New label FAB** (`NewLabelFab`): Opens new-label sheet from any screen.
+- **Legacy import**: `mobile-nav.tsx` re-exports `KitchenBottomNav` for compatibility.
 
 ### Running the app
 

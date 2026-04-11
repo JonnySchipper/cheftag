@@ -1,16 +1,19 @@
 const en: Record<string, string> = {
   // Nav
-  "nav.dashboard": "Dashboard",
+  "nav.dashboard": "Home",
   "nav.labels": "Labels",
   "nav.products": "Products",
   "nav.employees": "Employees",
   "nav.groups": "Groups",
   "nav.devices": "Devices",
   "nav.reports": "Reports",
-  "nav.printing": "Printing",
+  "nav.printing": "Print",
   "nav.settings": "Settings",
   "nav.preservationModes": "Preservation Modes",
   "nav.stockControl": "Stock Control",
+  "nav.more": "More",
+  "nav.section.reports": "Reports",
+  "nav.section.admin": "Admin & settings",
 
   // Common
   "common.search": "Search...",
@@ -39,6 +42,8 @@ const en: Record<string, string> = {
   "common.results": "results",
   "common.previous": "Previous",
   "common.next": "Next",
+  "common.remove": "Remove",
+  "common.clearFilters": "Clear filters",
 
   // Dashboard
   "dashboard.title": "Dashboard",
@@ -68,6 +73,8 @@ const en: Record<string, string> = {
   "labels.printAll": "Print all",
   "labels.selected": "selected",
   "labels.selectAll": "Select all",
+  "labels.deselectAll": "Deselect all",
+  "labels.printSelectedLarge": "Print selected",
   "labels.createdAt": "Created",
   "labels.expiresAt": "Expires",
   "labels.quantity": "Quantity",
@@ -128,17 +135,33 @@ const en: Record<string, string> = {
   "preservation.duration": "Duration (hours)",
 
   // Printing
-  "printing.title": "Printing",
+  "printing.title": "Print queue",
   "printing.selectPrinter": "Select printer",
   "printing.queue": "Print queue",
   "printing.noQueue": "No items in print queue",
   "printing.sentToPrinter": "Label sent to printer!",
   "printing.printLabel": "Print label",
+  "printing.printAction": "PRINT",
+  "printing.quickTitle": "Print now",
+  "printing.itemQueued": "item ready",
+  "printing.itemsQueued": "items ready",
+  "printing.usingPrinter": "Printer",
+  "printing.noOnlinePrinter": "No online printer — open full queue to pick one",
+  "printing.printNow": "Print all now",
+  "printing.clearQueue": "Clear queue",
+  "printing.fullQueue": "Full queue",
+  "printing.selectPrinterFirst": "Select a printer on the print page first",
+  "printing.addFromLabels": "Use Quick print on a label or select labels and tap Print selected.",
+  "printing.queueCleared": "Print queue cleared",
 
   // Settings
   "settings.title": "Settings",
   "settings.darkMode": "Dark mode",
+  "settings.lightMode": "Light mode",
   "settings.language": "Language",
+
+  // Header
+  "header.switchUser": "Switch user",
 
   // Toasts
   "toast.labelPrinted": "Label sent to printer!",
@@ -158,6 +181,7 @@ const en: Record<string, string> = {
   "toast.testPrintSent": "Test label sent to printer!",
   "toast.exportSuccess": "Export completed successfully",
   "toast.labelCreated": "Label created successfully",
+  "toast.addedToPrintQueue": "Added to print queue — tap PRINT to send",
 };
 
 const dictionaries: Record<string, Record<string, string>> = {

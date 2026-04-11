@@ -26,58 +26,60 @@ export function LabelCard({
 
   return (
     <div
-      className={`relative border rounded-xl p-4 bg-card transition-all duration-200 hover:shadow-md ${
-        selected ? "ring-2 ring-primary border-primary" : "border-border"
+      className={`relative rounded-2xl border-2 bg-card p-4 transition-all duration-200 active:scale-[0.99] ${
+        selected ? "border-primary ring-2 ring-primary/30" : "border-border"
       }`}
     >
-      <div className="absolute top-3 left-3">
+      <div className="absolute left-3 top-3">
         <Checkbox
           checked={selected}
           onCheckedChange={onToggleSelect}
+          className="h-6 w-6 rounded-md"
         />
       </div>
 
-      <div className="absolute top-3 right-3">
-        <StatusBadge status={status} />
+      <div className="absolute right-3 top-3 max-w-[55%]">
+        <StatusBadge status={status} size="large" />
       </div>
 
-      <div className="mt-8 space-y-3">
-        <div className="flex items-start gap-2">
-          <Package className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
-          <div>
-            <p className="font-semibold text-sm">{label.productName}</p>
-            <p className="text-xs text-muted-foreground">
+      <div className="mt-10 space-y-3">
+        <div className="flex items-start gap-2 pr-1">
+          <Package className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
+          <div className="min-w-0">
+            <p className="text-base font-bold leading-snug">{label.productName}</p>
+            <p className="text-sm font-medium text-muted-foreground">
               {t("labels.quantity")}: {label.quantity}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Clock className="w-3.5 h-3.5 shrink-0" />
+        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+          <Clock className="h-4 w-4 shrink-0" />
           <span>
             {t("labels.expiresAt")}: {format(expiration, "MMM dd, yyyy HH:mm")}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <MapPin className="w-3.5 h-3.5 shrink-0" />
-          <span>{label.storageLocation}</span>
+        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+          <MapPin className="h-4 w-4 shrink-0" />
+          <span className="truncate">{label.storageLocation}</span>
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <User className="w-3.5 h-3.5 shrink-0" />
-          <span>{label.responsibleName}</span>
+        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+          <User className="h-4 w-4 shrink-0" />
+          <span className="truncate">{label.responsibleName}</span>
         </div>
       </div>
 
-      <div className="mt-3 pt-3 border-t">
+      <div className="mt-4 border-t border-border pt-3">
         <Button
-          size="sm"
+          type="button"
+          size="lg"
           variant="outline"
-          className="w-full gap-2"
+          className="h-12 w-full gap-2 text-base font-bold"
           onClick={onQuickPrint}
         >
-          <Printer className="w-3.5 h-3.5" />
+          <Printer className="h-5 w-5" />
           {t("labels.quickPrint")}
         </Button>
       </div>

@@ -58,7 +58,7 @@ export default function SettingsPage() {
     <div>
       <PageHeader title={t("settings.title")} />
 
-      <div className="mx-auto max-w-7xl px-4 lg:px-6 py-4 space-y-6 animate-fade-in">
+      <div className="mx-auto max-w-[1600px] px-3 py-4 sm:px-4 lg:px-6 space-y-6 animate-fade-in">
         {/* Appearance */}
         <Card className="bg-card">
           <CardHeader>

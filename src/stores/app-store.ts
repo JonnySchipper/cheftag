@@ -69,7 +69,13 @@ interface AppState {
   // Print queue
   printQueue: Label[];
   addToPrintQueue: (label: Label) => void;
+  addLabelsToPrintQueue: (labels: Label[]) => void;
+  removeFromPrintQueue: (ids: string[]) => void;
   clearPrintQueue: () => void;
+
+  /** After creating a label, prompt user to print (highlight FAB / sheet). */
+  highlightPrintAfterCreate: boolean;
+  setHighlightPrintAfterCreate: (v: boolean) => void;
 
   // Hydration
   _hasHydrated: boolean;
@@ -182,8 +188,26 @@ export const useAppStore = create<AppState>()(
 
       printQueue: [],
       addToPrintQueue: (label: Label) =>
-        set((state) => ({ printQueue: [...state.printQueue, label] })),
+        set((state) => {
+          if (state.printQueue.some((l) => l.id === label.id)) return state;
+          return { printQueue: [...state.printQueue, label] };
+        }),
+      addLabelsToPrintQueue: (labels: Label[]) =>
+        set((state) => {
+          const ids = new Set(state.printQueue.map((l) => l.id));
+          const toAdd = labels.filter((l) => !ids.has(l.id));
+          if (toAdd.length === 0) return state;
+          return { printQueue: [...state.printQueue, ...toAdd] };
+        }),
+      removeFromPrintQueue: (ids: string[]) =>
+        set((state) => ({
+          printQueue: state.printQueue.filter((l) => !ids.includes(l.id)),
+        })),
       clearPrintQueue: () => set({ printQueue: [] }),
+
+      highlightPrintAfterCreate: false,
+      setHighlightPrintAfterCreate: (v: boolean) =>
+        set({ highlightPrintAfterCreate: v }),
 
       _hasHydrated: false,
       setHasHydrated: (v: boolean) => set({ _hasHydrated: v }),

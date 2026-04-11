@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useAppStore } from "@/stores/app-store";
 import { t } from "@/lib/i18n";
-import { getLabelStatus, LabelStatus } from "@/lib/types";
+import { getLabelStatus, getExpirationDate } from "@/lib/types";
 import { PageHeader } from "@/components/shared/page-header";
 import { LabelCard } from "@/components/shared/label-card";
 import { Button } from "@/components/ui/button";
@@ -21,9 +22,11 @@ import { sendToPrinter, exportToCSV } from "@/lib/print-utils";
 import { toast } from "sonner";
 import { Plus, Printer, Trash2, Download, Search, X } from "lucide-react";
 import { format } from "date-fns";
-import { getExpirationDate } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
-export default function LabelsPage() {
+function LabelsPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const {
     labels,
     selectedLabelIds,
@@ -32,14 +35,19 @@ export default function LabelsPage() {
     clearLabelSelection,
     discardLabels,
     printLabels,
+    addLabelsToPrintQueue,
+    setHighlightPrintAfterCreate,
     globalSearch,
   } = useAppStore();
 
-  const [newLabelOpen, setNewLabelOpen] = useState(false);
+  const [newLabelOpenLocal, setNewLabelOpenLocal] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [responsibleFilter, setResponsibleFilter] = useState<string>("all");
   const [storageFilter, setStorageFilter] = useState<string>("all");
   const [localSearch, setLocalSearch] = useState("");
+
+  const urlNewLabel = searchParams.get("action") === "new";
+  const newLabelSheetOpen = urlNewLabel || newLabelOpenLocal;
 
   const searchTerm = globalSearch || localSearch;
 
@@ -86,17 +94,22 @@ export default function LabelsPage() {
     [labels, printLabels]
   );
 
-  const handleBulkPrint = useCallback(async () => {
+  const handleBulkPrint = useCallback(() => {
     const selectedLabels = labels.filter((l) =>
       selectedLabelIds.includes(l.id)
     );
-    for (const label of selectedLabels) {
-      await sendToPrinter(label);
-    }
-    printLabels(selectedLabelIds);
-    toast.success(`${selectedLabelIds.length} ${t("toast.labelsPrinted")}`);
+    if (selectedLabels.length === 0) return;
+    addLabelsToPrintQueue(selectedLabels);
+    setHighlightPrintAfterCreate(true);
     clearLabelSelection();
-  }, [labels, selectedLabelIds, printLabels, clearLabelSelection]);
+    toast.success(t("toast.addedToPrintQueue"));
+  }, [
+    labels,
+    selectedLabelIds,
+    addLabelsToPrintQueue,
+    clearLabelSelection,
+    setHighlightPrintAfterCreate,
+  ]);
 
   const handleBulkDiscard = useCallback(() => {
     discardLabels(selectedLabelIds);
@@ -132,45 +145,51 @@ export default function LabelsPage() {
     storageFilter !== "all" ||
     localSearch !== "";
 
+  const syncNewLabelSheet = (open: boolean) => {
+    setNewLabelOpenLocal(open);
+    if (!open && urlNewLabel) {
+      router.replace("/labels", { scroll: false });
+    }
+  };
+
   return (
     <div>
       <PageHeader
         title={t("labels.title")}
         action={
-          <Sheet open={newLabelOpen} onOpenChange={setNewLabelOpen}>
+          <Sheet open={newLabelSheetOpen} onOpenChange={syncNewLabelSheet}>
             <SheetTrigger
-              render={<Button size="sm" className="gap-1" />}
+              render={<Button size="lg" className="h-12 gap-2 px-5 text-base font-bold" />}
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="h-5 w-5" />
               {t("dashboard.newLabel")}
             </SheetTrigger>
-            <SheetContent>
+            <SheetContent side="right" className="w-full max-w-md sm:max-w-lg">
               <SheetHeader>
-                <SheetTitle>{t("dashboard.newLabel")}</SheetTitle>
+                <SheetTitle className="text-xl font-bold">{t("dashboard.newLabel")}</SheetTitle>
               </SheetHeader>
               <div className="mt-4">
-                <NewLabelForm onClose={() => setNewLabelOpen(false)} />
+                <NewLabelForm onClose={() => syncNewLabelSheet(false)} />
               </div>
             </SheetContent>
           </Sheet>
         }
       />
 
-      <div className="mx-auto max-w-7xl px-4 lg:px-6 py-4 space-y-4 animate-fade-in">
-        {/* Filters */}
+      <div className="mx-auto max-w-[1600px] space-y-4 px-3 py-4 animate-fade-in sm:px-4 lg:px-6">
         <div className="flex flex-wrap gap-2 items-center">
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <div className="relative min-w-[min(100%,280px)] flex-1">
+            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder={t("common.search")}
-              className="pl-8 h-9"
+              className="h-12 min-h-[48px] rounded-xl pl-11 text-base"
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
             />
           </div>
 
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? "all")}>
-            <SelectTrigger className="w-40 h-9">
+            <SelectTrigger className="h-12 min-h-[48px] w-full min-w-[140px] rounded-xl sm:w-44">
               <SelectValue placeholder={t("labels.filterByStatus")} />
             </SelectTrigger>
             <SelectContent>
@@ -184,7 +203,7 @@ export default function LabelsPage() {
           </Select>
 
           <Select value={responsibleFilter} onValueChange={(v) => setResponsibleFilter(v ?? "all")}>
-            <SelectTrigger className="w-44 h-9">
+            <SelectTrigger className="h-12 min-h-[48px] w-full min-w-[160px] rounded-xl sm:w-48">
               <SelectValue placeholder={t("labels.filterByResponsible")} />
             </SelectTrigger>
             <SelectContent>
@@ -198,7 +217,7 @@ export default function LabelsPage() {
           </Select>
 
           <Select value={storageFilter} onValueChange={(v) => setStorageFilter(v ?? "all")}>
-            <SelectTrigger className="w-44 h-9">
+            <SelectTrigger className="h-12 min-h-[48px] w-full min-w-[160px] rounded-xl sm:w-48">
               <SelectValue placeholder={t("labels.filterByStorage")} />
             </SelectTrigger>
             <SelectContent>
@@ -214,7 +233,8 @@ export default function LabelsPage() {
           {hasActiveFilters && (
             <Button
               variant="ghost"
-              size="sm"
+              size="lg"
+              className="h-12 rounded-xl"
               onClick={() => {
                 setStatusFilter("all");
                 setResponsibleFilter("all");
@@ -222,52 +242,49 @@ export default function LabelsPage() {
                 setLocalSearch("");
               }}
             >
-              <X className="w-4 h-4 mr-1" />
-              Clear
+              <X className="mr-1 h-5 w-5" />
+              {t("common.clearFilters")}
             </Button>
           )}
 
-          <Button variant="outline" size="sm" className="gap-1 ml-auto" onClick={handleExportCSV}>
-            <Download className="w-4 h-4" />
+          <Button variant="outline" size="lg" className="ml-auto h-12 gap-2 rounded-xl font-semibold" onClick={handleExportCSV}>
+            <Download className="h-5 w-5" />
             {t("common.exportCSV")}
           </Button>
         </div>
 
-        {/* Bulk actions bar */}
         {selectedLabelIds.length > 0 && (
-          <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-xl border border-primary/20 animate-fade-in">
-            <span className="text-sm font-medium">
+          <div className="flex flex-wrap items-center gap-2 rounded-2xl border-2 border-primary/30 bg-primary/10 p-3">
+            <span className="text-base font-bold">
               {selectedLabelIds.length} {t("labels.selected")}
             </span>
-            <Button size="sm" variant="outline" className="gap-1" onClick={handleBulkPrint}>
-              <Printer className="w-3.5 h-3.5" />
+            <Button size="lg" variant="outline" className="h-11 gap-2 font-semibold" onClick={handleBulkPrint}>
+              <Printer className="h-4 w-4" />
               {t("labels.bulkPrint")}
             </Button>
             <Button
-              size="sm"
+              size="lg"
               variant="outline"
-              className="gap-1 text-destructive border-destructive/30 hover:bg-destructive/10"
+              className="h-11 gap-2 font-semibold text-destructive border-destructive/30 hover:bg-destructive/10"
               onClick={handleBulkDiscard}
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 className="h-4 w-4" />
               {t("labels.bulkDiscard")}
             </Button>
-            <Button size="sm" variant="ghost" onClick={handleSelectAll}>
+            <Button size="lg" variant="ghost" className="h-11 font-semibold" onClick={handleSelectAll}>
               {selectedLabelIds.length === filteredLabels.length
-                ? "Deselect all"
+                ? t("labels.deselectAll")
                 : t("labels.selectAll")}
             </Button>
           </div>
         )}
 
-        {/* Label count */}
-        <p className="text-sm text-muted-foreground">
+        <p className="text-base font-medium text-muted-foreground">
           {t("common.showing")} {filteredLabels.length} {t("common.of")}{" "}
           {labels.length} {t("common.results")}
         </p>
 
-        {/* Label grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {filteredLabels.map((label) => (
             <LabelCard
               key={label.id}
@@ -280,11 +297,43 @@ export default function LabelsPage() {
         </div>
 
         {filteredLabels.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground">
-            <p className="text-lg">{t("common.noResults")}</p>
+          <div className="py-12 text-center text-muted-foreground">
+            <p className="text-lg font-medium">{t("common.noResults")}</p>
           </div>
         )}
       </div>
+
+      <div
+        className={cn(
+          "fixed inset-x-0 z-[35] border-t-2 border-primary/40 bg-card/98 px-3 py-3 backdrop-blur-md transition-transform duration-200 xl:hidden",
+          "bottom-[calc(4.25rem+env(safe-area-inset-bottom))]",
+          selectedLabelIds.length > 0 ? "translate-y-0" : "translate-y-full pointer-events-none"
+        )}
+      >
+        <div className="mx-auto flex max-w-[1600px] flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-center text-base font-bold sm:text-left">
+            {selectedLabelIds.length} {t("labels.selected")}
+          </p>
+          <Button
+            type="button"
+            size="lg"
+            className="h-14 min-h-[56px] w-full gap-2 text-lg font-bold shadow-lg sm:max-w-md sm:flex-1"
+            disabled={selectedLabelIds.length === 0}
+            onClick={handleBulkPrint}
+          >
+            <Printer className="h-7 w-7" />
+            {t("labels.printSelectedLarge")}
+          </Button>
+        </div>
+      </div>
     </div>
+  );
+}
+
+export default function LabelsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center font-medium">{t("common.loading")}</div>}>
+      <LabelsPageContent />
+    </Suspense>
   );
 }

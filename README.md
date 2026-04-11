@@ -1,42 +1,40 @@
-# Ticketer - Label Printing System
+# Cheftag Solutions
 
-## Project Description
-A web-based system for generating and printing labels/tickets via a Raspberry Pi print server.
+Food-label and expiration management for restaurant kitchens. The UI is optimized for tablets and phones: a four-item shell (Home, Labels, Print, More), a global **PRINT** floating action, and a **New label** floating action.
 
-## Quick Start
+## Stack
 
-### Prerequisites
-- Node.js 16+ or Python 3.8+
-- Raspberry Pi with Raspberry Pi OS
-- Label printer (thermal, barcode, etc.)
+- Next.js 16 (App Router), React 19, Tailwind 4, shadcn/ui v4 (`@base-ui/react`)
+- Zustand with `localStorage` persistence (mock data in `src/lib/mock-data.ts`)
+- Lucide icons
 
-### Installation
+## Quick start
+
 ```bash
-# Web Interface
-cd web
 npm install
-npm start
-
-# Print Server (Raspberry Pi)
-cd print-server
-pip install -r requirements.txt
-python server.py
+npm run dev
 ```
 
-## Architecture
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Web Interface │────│  Print Server   │────│     Printer     │
-│   (Browser)     │    │  (Raspberry Pi) │    │  (USB/Network)  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+Open [http://localhost:3000](http://localhost:3000) (redirects to `/dashboard`).
+
+## Navigation
+
+| Shell | Routes |
+|--------|--------|
+| **Home** | `/dashboard` |
+| **Labels** | `/labels` (keyboard `n` or `?action=new` opens new label) |
+| **Print** | `/printing` + global PRINT FAB (quick sheet) |
+| **More** | Sheet: Reports, Products, Employees, Groups, Devices, Preservation Modes, Settings |
+
+Desktop (`xl+`): sidebar mirrors the same four sections.
+
+## Scripts
+
+```bash
+npm run lint
+npm run build
 ```
 
-## Features
-- Web-based label design
-- Real-time print queue
-- Multiple printer support
-- Label template management
-- Print job history
+## Print server (optional)
 
-## Development
-See `DEVELOPMENT.md` for detailed setup instructions and coding guidelines.
+See `docs/RASPBERRY_PI_SETUP.md` and `print-server/` for the Raspberry Pi bridge. The app simulates printing in the browser until a real endpoint is wired in `src/lib/print-utils.ts`.
