@@ -143,7 +143,7 @@ export const employees: Employee[] = [
     name: "Renato Veras",
     username: "renato.veras",
     email: "renato@deveras.com",
-    phone: "+55 11 99730-4920",
+    phone: "+55 11 98111-2233",
     role: "administrator",
   },
   {
