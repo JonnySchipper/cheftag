@@ -1,39 +1,114 @@
 import { Label, getExpirationDate } from "./types";
 import { format } from "date-fns";
+import { useAppStore } from "@/stores/app-store";
 
-// TODO: real Raspberry Pi endpoint
-// Replace this with actual WebSocket or HTTP call to the Raspberry Pi printer
+/** Cheftag Print Server OpenAPI `LabelData` */
+export interface CheftagLabelPayload {
+  product_name: string;
+  expiration: string;
+  quantity: number;
+  preservation: string;
+  responsible: string;
+  storage: string;
+}
+
+function parsePrintError(data: unknown): string {
+  if (data && typeof data === "object") {
+    if ("error" in data && typeof (data as { error: unknown }).error === "string") {
+      return (data as { error: string }).error;
+    }
+    if ("detail" in data) {
+      const detail = (data as { detail: unknown }).detail;
+      if (typeof detail === "string") return detail;
+      if (Array.isArray(detail)) {
+        return detail
+          .map((item) => {
+            if (item && typeof item === "object" && "msg" in item) {
+              return String((item as { msg: unknown }).msg);
+            }
+            return String(item);
+          })
+          .join("; ");
+      }
+    }
+  }
+  return "Print failed";
+}
+
+export function buildCheftagLabelPayload(label: Label): CheftagLabelPayload {
+  const expiration = getExpirationDate(label);
+  const { preservationModes } = useAppStore.getState();
+  const mode = preservationModes.find((m) => m.id === label.preservationModeId);
+  const preservation =
+    mode?.name ?? `${label.preservationDurationHours}h`;
+
+  return {
+    product_name: label.productName,
+    expiration: format(expiration, "dd/MM/yyyy HH:mm"),
+    quantity: label.quantity,
+    preservation,
+    responsible: label.responsibleName,
+    storage: label.storageLocation,
+  };
+}
+
+export async function sendCheftagPrintPayload(
+  payload: CheftagLabelPayload
+): Promise<{ ok: boolean; error?: string }> {
+  const res = await fetch("/api/print-label", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  let data: unknown = {};
+  try {
+    data = await res.json();
+  } catch {
+    data = {};
+  }
+
+  if (!res.ok) {
+    return { ok: false, error: parsePrintError(data) };
+  }
+
+  if (
+    data &&
+    typeof data === "object" &&
+    "status" in data &&
+    (data as { status: unknown }).status === "printed"
+  ) {
+    return { ok: true };
+  }
+
+  return { ok: false, error: "Unexpected response from print server" };
+}
+
 export async function sendToPrinter(
   label: Label,
-  _options?: { size?: "small" | "medium" | "large"; printerId?: string } // eslint-disable-line @typescript-eslint/no-unused-vars
+  _options?: { size?: "small" | "medium" | "large"; printerId?: string }
 ): Promise<boolean> {
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 300));
+  void _options;
+  const payload = buildCheftagLabelPayload(label);
+  const result = await sendCheftagPrintPayload(payload);
+  return result.ok;
+}
 
-  const expiration = getExpirationDate(label);
-
-  // Generate label data that would be sent to the printer
-  const _printData = {
-    productName: label.productName,
-    quantity: label.quantity,
-    createdAt: format(new Date(label.createdAt), "dd/MM/yyyy HH:mm"),
-    expiresAt: format(expiration, "dd/MM/yyyy HH:mm"),
-    storageLocation: label.storageLocation,
-    responsible: label.responsibleName,
-    preservationDuration: `${label.preservationDurationHours}h`,
-    qrCode: `cheftag://label/${label.id}`,
+/** Connectivity check: sends a minimal label to the print server. */
+export async function sendTestPrintToServer(): Promise<boolean> {
+  const payload: CheftagLabelPayload = {
+    product_name: "Cheftag test",
+    expiration: format(new Date(), "dd/MM/yyyy HH:mm"),
+    quantity: 1,
+    preservation: "Test",
+    responsible: "System",
+    storage: "Kitchen",
   };
-
-  // In production, this would be:
-  // const response = await fetch('http://raspberry-pi-ip:port/print', {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify({ ...printData, ...options }),
-  // });
-  // return response.ok;
-
-  console.log("[Cheftag] Print job sent:", _printData);
-  return true;
+  const result = await sendCheftagPrintPayload(payload);
+  return result.ok;
 }
 
 export function exportToCSV(

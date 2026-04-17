@@ -87,7 +87,11 @@ function LabelsPageContent() {
     async (labelId: string) => {
       const label = labels.find((l) => l.id === labelId);
       if (!label) return;
-      await sendToPrinter(label);
+      const ok = await sendToPrinter(label);
+      if (!ok) {
+        toast.error(t("toast.printFailed"));
+        return;
+      }
       printLabels([labelId]);
       toast.success(t("toast.labelPrinted"));
     },

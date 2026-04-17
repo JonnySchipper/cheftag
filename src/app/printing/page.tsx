@@ -20,7 +20,13 @@ import { format } from "date-fns";
 import { getExpirationDate } from "@/lib/types";
 
 export default function PrintingPage() {
-  const { devices, printQueue, clearPrintQueue, printLabels } = useAppStore();
+  const {
+    devices,
+    printQueue,
+    clearPrintQueue,
+    printLabels,
+    removeFromPrintQueue,
+  } = useAppStore();
   const [selectedDevice, setSelectedDevice] = useState<string>("");
 
   const onlineDevices = devices.filter((d) => d.online);
@@ -30,11 +36,21 @@ export default function PrintingPage() {
       toast.error(t("printing.selectPrinterFirst"));
       return;
     }
+    const printedIds: string[] = [];
     for (const label of printQueue) {
-      await sendToPrinter(label, { printerId: selectedDevice });
+      const ok = await sendToPrinter(label, { printerId: selectedDevice });
+      if (!ok) {
+        toast.error(t("toast.printFailed"));
+        if (printedIds.length > 0) {
+          printLabels(printedIds);
+          removeFromPrintQueue(printedIds);
+        }
+        return;
+      }
+      printedIds.push(label.id);
     }
-    printLabels(printQueue.map((l) => l.id));
-    toast.success(`${printQueue.length} ${t("toast.labelsPrinted")}`);
+    printLabels(printedIds);
+    toast.success(`${printedIds.length} ${t("toast.labelsPrinted")}`);
     clearPrintQueue();
   };
 

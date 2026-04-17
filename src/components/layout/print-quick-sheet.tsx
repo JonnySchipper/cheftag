@@ -47,11 +47,21 @@ export function PrintQuickSheet({ open, onOpenChange }: PrintQuickSheetProps) {
       router.push("/printing");
       return;
     }
+    const printedIds: string[] = [];
     for (const label of printQueue) {
-      await sendToPrinter(label, { printerId: defaultPrinterId });
+      const ok = await sendToPrinter(label, { printerId: defaultPrinterId });
+      if (!ok) {
+        toast.error(t("toast.printFailed"));
+        if (printedIds.length > 0) {
+          printLabels(printedIds);
+          removeFromPrintQueue(printedIds);
+        }
+        return;
+      }
+      printedIds.push(label.id);
     }
-    printLabels(printQueue.map((l) => l.id));
-    toast.success(`${printQueue.length} ${t("toast.labelsPrinted")}`);
+    printLabels(printedIds);
+    toast.success(`${printedIds.length} ${t("toast.labelsPrinted")}`);
     clearPrintQueue();
     setHighlightPrintAfterCreate(false);
     onOpenChange(false);

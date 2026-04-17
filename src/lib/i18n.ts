@@ -165,6 +165,7 @@ const en: Record<string, string> = {
 
   // Toasts
   "toast.labelPrinted": "Label sent to printer!",
+  "toast.printFailed": "Could not reach the print server. Check the device and try again.",
   "toast.labelDiscarded": "Label discarded successfully",
   "toast.labelsDiscarded": "labels discarded",
   "toast.labelsPrinted": "labels sent to printer",

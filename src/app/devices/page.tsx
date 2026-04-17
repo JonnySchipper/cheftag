@@ -22,6 +22,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { Plus, Printer, Monitor, Clock, Wifi, WifiOff } from "lucide-react";
 import { format } from "date-fns";
+import { sendTestPrintToServer } from "@/lib/print-utils";
 
 const deviceSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -55,9 +56,13 @@ export default function DevicesPage() {
     setNewOpen(false);
   };
 
-  const handleTestPrint = (deviceName: string) => {
-    // TODO: real Raspberry Pi endpoint
-    toast.success(`${t("toast.testPrintSent")} (${deviceName})`);
+  const handleTestPrint = async (deviceName: string) => {
+    const ok = await sendTestPrintToServer();
+    if (ok) {
+      toast.success(`${t("toast.testPrintSent")} (${deviceName})`);
+    } else {
+      toast.error(t("toast.printFailed"));
+    }
   };
 
   return (

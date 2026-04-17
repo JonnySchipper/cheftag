@@ -82,9 +82,14 @@ interface AppState {
   setHasHydrated: (v: boolean) => void;
 }
 
+/** Set by the store initializer so persist callbacks never touch `useAppStore` before init (TDZ). */
+let markHydrated: (() => void) | undefined;
+
 export const useAppStore = create<AppState>()(
   persist(
-    (set) => ({
+    (set) => {
+      markHydrated = () => set({ _hasHydrated: true });
+      return {
       darkMode: false,
       toggleDarkMode: () =>
         set((state) => ({ darkMode: !state.darkMode })),
@@ -211,11 +216,17 @@ export const useAppStore = create<AppState>()(
 
       _hasHydrated: false,
       setHasHydrated: (v: boolean) => set({ _hasHydrated: v }),
-    }),
+    };
+    },
     {
       name: "cheftag-store",
-      onRehydrateStorage: () => (state) => {
-        state?.setHasHydrated(true);
+      // Always unblock the UI after a rehydration attempt. On failure, `state` is
+      // undefined but we must still set the flag (see zustand persist catch path).
+      onRehydrateStorage: () => (_state, error) => {
+        if (error) {
+          console.warn("[cheftag-store] Persist rehydration failed:", error);
+        }
+        markHydrated?.();
       },
     }
   )
